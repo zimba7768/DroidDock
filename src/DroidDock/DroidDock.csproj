@@ -9,6 +9,8 @@
     <AssemblyName>DroidDock</AssemblyName>
     <RootNamespace>DroidDock</RootNamespace>
     <Version>0.1.0</Version>
+    <!-- Pack WPF's native DLLs inside the single-file exe so it runs on its own. -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <Description>Run Android apps on Windows with a one-click wrapper around the official Android Emulator.</Description>
   </PropertyGroup>
 
