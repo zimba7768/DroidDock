@@ -63,6 +63,10 @@ public sealed class AdbService(SdkPaths sdk)
     public Task<ProcessResult> InstallAsync(string serial, string apkPath) =>
         Adb(TimeSpan.FromMinutes(10), "-s", serial, "install", "-r", apkPath);
 
+    /// <summary>Installs a base APK together with its split APKs as one app.</summary>
+    public Task<ProcessResult> InstallMultipleAsync(string serial, IEnumerable<string> apkPaths) =>
+        Adb(TimeSpan.FromMinutes(10), ["-s", serial, "install-multiple", "-r", .. apkPaths]);
+
     public Task<ProcessResult> UninstallAsync(string serial, string package) =>
         Adb(TimeSpan.FromMinutes(2), "-s", serial, "uninstall", package);
 

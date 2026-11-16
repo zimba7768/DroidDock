@@ -216,3 +216,50 @@ public class SdkRepositoryTests
         writer.Write(content);
     }
 }
+
+public class ApkBundleTests
+{
+    [Fact]
+    public void Extract_PullsOutOnlyApks_FlattenedIntoTempFolder()
+    {
+        var temp = Path.Combine(Path.GetTempPath(), "droiddock-test-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(temp);
+        try
+        {
+            var bundle = Path.Combine(temp, "app.xapk");
+            using (var zip = ZipFile.Open(bundle, ZipArchiveMode.Create))
+            {
+                foreach (var name in new[] { "base.apk", "splits/config.x86_64.apk", "../evil.apk", "manifest.json", "Android/obb/x/main.obb" })
+                {
+                    using var w = new StreamWriter(zip.CreateEntry(name).Open());
+                    w.Write(name);
+                }
+            }
+
+            Assert.True(ApkBundle.IsBundle(bundle));
+            Assert.False(ApkBundle.IsBundle("a.apk"));
+
+            // A bundle renamed to .apk is still recognised by what is inside it.
+            var renamed = Path.Combine(temp, "renamed.apk");
+            File.Copy(bundle, renamed);
+            Assert.True(ApkBundle.IsBundle(renamed));
+
+            var result = ApkBundle.Extract(bundle);
+            try
+            {
+                Assert.True(result.HasObb);
+                Assert.Equal(["base.apk", "config.x86_64.apk", "evil.apk"], result.Apks.Select(Path.GetFileName).Order());
+                Assert.All(result.Apks, a => Assert.Equal(result.Dir, Path.GetDirectoryName(a)));
+            }
+            finally
+            {
+                ApkBundle.TryDelete(result.Dir);
+            }
+            Assert.False(Directory.Exists(result.Dir));
+        }
+        finally
+        {
+            Directory.Delete(temp, true);
+        }
+    }
+}

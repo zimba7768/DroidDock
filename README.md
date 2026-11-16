@@ -16,8 +16,8 @@ dragging `.apk` files onto its window.
 - **Uses what you already have** – if an Android SDK is already installed (for example by
   Android Studio), DroidDock finds it and shows its existing virtual devices.
 - **Virtual devices** – create phone, tablet or desktop-sized devices; start, stop and delete them.
-- **Apps** – list installed apps, open or uninstall them, and install `.apk` files by
-  drag-and-drop or with the *Install APK…* button.
+- **Apps** – list installed apps, open or uninstall them, and install `.apk` files and
+  `.xapk` / `.apks` / `.apkm` bundles by drag-and-drop or with the *Install APK…* button.
 - **Google Play** – pick a "Google Play" system image to get the Play Store inside the device.
 
 ## Requirements
@@ -76,7 +76,7 @@ up in Android Studio, and vice versa.
 
 ## Known limitations
 
-- Only single `.apk` files can be installed; `.xapk` / `.apks` bundles are not supported yet.
+- Extra data (OBB) files inside `.xapk` bundles are not copied to the device.
 - Apps are listed by package name (for example `org.mozilla.firefox`), not by their display name.
 - Apps built only for ARM processors may not run on the x86-64 Android images.
 - Windows on ARM is untested.

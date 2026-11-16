@@ -368,7 +368,7 @@ public partial class MainWindow : Window
     {
         var dialog = new OpenFileDialog
         {
-            Filter = "Android packages (*.apk)|*.apk",
+            Filter = "Android apps (*.apk;*.xapk;*.apks;*.apkm)|*.apk;*.xapk;*.apks;*.apkm",
             Multiselect = true,
             Title = "Choose APK files to install",
         };
@@ -388,10 +388,10 @@ public partial class MainWindow : Window
 
     private async Task InstallApksAsync(IEnumerable<string> files)
     {
-        var apks = files.Where(f => f.EndsWith(".apk", StringComparison.OrdinalIgnoreCase)).ToList();
+        var apks = files.Where(f => ApkBundle.IsApk(f) || ApkBundle.HasBundleExtension(f)).ToList();
         if (apks.Count == 0)
         {
-            Log("Only .apk files can be installed (.xapk / .apks bundles are not supported yet).");
+            Log("Only .apk files and .xapk / .apks / .apkm bundles can be installed.");
             return;
         }
 
@@ -405,10 +405,41 @@ public partial class MainWindow : Window
         foreach (var apk in apks)
         {
             SetBusy($"Installing {Path.GetFileName(apk)} on {target.DisplayName}…");
-            var result = await _adb.InstallAsync(target.Serial, apk);
-            Log(result.Ok && result.StdOut.Contains("Success")
-                ? $"Installed {Path.GetFileName(apk)}."
-                : $"Could not install {Path.GetFileName(apk)}: {result.Combined}");
+            try
+            {
+                ProcessResult result;
+                if (await Task.Run(() => ApkBundle.IsBundle(apk)))
+                {
+                    var bundle = await Task.Run(() => ApkBundle.Extract(apk));
+                    try
+                    {
+                        if (bundle.Apks.Count == 0)
+                        {
+                            Log($"Could not install {Path.GetFileName(apk)}: it contains no APK files.");
+                            continue;
+                        }
+                        if (bundle.HasObb)
+                            Log($"{Path.GetFileName(apk)} includes extra data (OBB) files, which are not copied; the app may need to download them itself.");
+                        result = await _adb.InstallMultipleAsync(target.Serial, bundle.Apks);
+                    }
+                    finally
+                    {
+                        ApkBundle.TryDelete(bundle.Dir);
+                    }
+                }
+                else
+                {
+                    result = await _adb.InstallAsync(target.Serial, apk);
+                }
+
+                Log(result.Ok && result.StdOut.Contains("Success")
+                    ? $"Installed {Path.GetFileName(apk)}."
+                    : $"Could not install {Path.GetFileName(apk)}: {result.Combined}");
+            }
+            catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
+            {
+                Log($"Could not install {Path.GetFileName(apk)}: {ex.Message}");
+            }
         }
 
         SetBusy(null);
