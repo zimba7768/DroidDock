@@ -1,0 +1,46 @@
+﻿<Window x:Class="DroidDock.CreateDeviceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="New virtual device" Width="460" SizeToContent="Height" ResizeMode="NoResize"
+        Background="{StaticResource Bg}" Foreground="{StaticResource Text}" FontFamily="Segoe UI" WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="20">
+        <TextBlock Text="Name" Margin="0,0,0,4"/>
+        <TextBox x:Name="NameBox" Margin="0,0,0,14"/>
+
+        <TextBlock Text="Android version" Margin="0,0,0,4"/>
+        <ComboBox x:Name="ImageCombo" Margin="0,0,0,14" Padding="6,5"/>
+
+        <TextBlock Text="Screen" Margin="0,0,0,4"/>
+        <ComboBox x:Name="ProfileCombo" Margin="0,0,0,14" Padding="6,5"/>
+
+        <Grid Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="Memory" Margin="0,0,0,4"/>
+                <ComboBox x:Name="RamCombo" Padding="6,5"/>
+            </StackPanel>
+            <StackPanel Grid.Column="2">
+                <TextBlock Text="CPU cores" Margin="0,0,0,4"/>
+                <ComboBox x:Name="CoresCombo" Padding="6,5"/>
+            </StackPanel>
+            <StackPanel Grid.Column="4">
+                <TextBlock Text="Storage" Margin="0,0,0,4"/>
+                <ComboBox x:Name="StorageCombo" Padding="6,5"/>
+            </StackPanel>
+        </Grid>
+
+        <TextBlock x:Name="ErrorText" Foreground="{StaticResource Danger}" TextWrapping="Wrap" Margin="0,0,0,10"
+                   Visibility="Collapsed"/>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="Cancel" IsCancel="True"/>
+            <Button Content="Create" Style="{StaticResource AccentButton}" IsDefault="True" Click="Create_Click" Margin="0"/>
+        </StackPanel>
+    </StackPanel>
+</Window>
